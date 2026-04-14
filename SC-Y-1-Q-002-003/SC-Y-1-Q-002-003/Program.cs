@@ -44,19 +44,15 @@
             };
 
             /* 
-                Create a cart. but how? string? "fixed-size cart array". 
+                    "fixed-size cart array". 
                 
-                Considering that I created an array of Product
-                thinking that those ARE products shown in the MENU so
+                    Considering that I created an array of Product
+                    thinking that those ARE products shown in the MENU so
                 
-                Menu > Product
+                    Menu contains Product
 
-                maybe I'll just create another array of items.
-                (assuming that those items are the ones inside the cart)
-
-                Cart > Items
-             
-                I'll create another class containing items.
+                    I'll just create another array of items.
+                    (assuming that those items are the ones inside the cart)
              */
 
             // Limiting the cart items to 20.
@@ -108,9 +104,9 @@
                     for(int i = 0; i < products.Length; i++)
                     {
                         Product p = products[i];
-                        MainIndex = i;
                         if (SelectedProductID == p.Pid)
                         {
+                            MainIndex = i;
                             productisValid = true;
                         }
                     }
@@ -159,10 +155,17 @@
                     continue;
                 }
 
-                if (!products[MainIndex].hasEnoughStock(SelectedProductQuantity))
+                bool enough = false;
+
+                if (products[MainIndex].hasEnoughStock(SelectedProductQuantity))
                 {
+                    enough = true;
+                }
+
+                if (!enough) {
                     Console.WriteLine("Not enough stock available.");
                 }
+
 
                 /*
                      If valid: 
@@ -175,21 +178,29 @@
                 products[MainIndex].getItemTotal(SelectedProductQuantity);
 
                 // o Add item to cart 
+
                 /*
-                    Still going to consider:
+                        o Prevent adding items if the cart is already full 
+                        o Display an appropriate message(example: “Cart is full.”)
+                */
 
-                        Prevent duplicate cart entries 
-                            o If the same product is selected again, update the existing cart quantity and subtotal instead of adding a 
-                              new cart row 
-                            
-                        If using a fixed-size cart array: 
-                            o Prevent adding items if the cart is already full 
-                            o Display an appropriate message (example: “Cart is full.”) 
+                if (CartIndex == cartItems.Length) Console.WriteLine("Cart is full.");
+                // Using the example to make it identical to the document.
 
-                 */
 
-                // Papasok muna ako HAHAHAHHAHAHA
+                /*
+                     Prevent duplicate cart entries 
+                        o If the same product is selected again, 
+                          update the existing cart quantity and subtotal 
+                          instead of adding a new cart row
+                */
 
+                // Using for loop for tracing.
+                for (int ci = 0; ci < cartItems.Length; ci++) {
+                    if (products[MainIndex].Pid.Equals(cartItems[ci])) {
+                        cartItems[ci].Cquantity += SelectedProductQuantity;
+                    }
+                }
             }
         }
     }
