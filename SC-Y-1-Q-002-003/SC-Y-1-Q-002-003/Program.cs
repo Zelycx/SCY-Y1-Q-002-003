@@ -43,6 +43,27 @@
                 // The "9", budol of marketing
             };
 
+            /* 
+                Create a cart. but how? string? "fixed-size cart array". 
+                
+                Considering that I created an array of Product
+                thinking that those ARE products shown in the MENU so
+                
+                Menu > Product
+
+                maybe I'll just create another array of items.
+                (assuming that those items are the ones inside the cart)
+
+                Cart > Items
+             
+                I'll create another class containing items.
+             */
+
+            // Limiting the cart items to 20.
+
+            CartItem[] cartItems = new CartItem[20];
+            int CartIndex = 0; // tracking the index of the used cart
+
             Console.Clear();
             // Main loop
             while (true)
@@ -142,6 +163,33 @@
                 {
                     Console.WriteLine("Not enough stock available.");
                 }
+
+                /*
+                     If valid: 
+                        o Compute itemTotal = Price * Quantity 
+                        o Add item to cart 
+                        o Deduct quantity from RemainingStock 
+                */
+
+                // o Compute itemTotal = Price * Quantity ✔️
+                products[MainIndex].getItemTotal(SelectedProductQuantity);
+
+                // o Add item to cart 
+                /*
+                    Still going to consider:
+
+                        Prevent duplicate cart entries 
+                            o If the same product is selected again, update the existing cart quantity and subtotal instead of adding a 
+                              new cart row 
+                            
+                        If using a fixed-size cart array: 
+                            o Prevent adding items if the cart is already full 
+                            o Display an appropriate message (example: “Cart is full.”) 
+
+                 */
+
+                // Papasok muna ako HAHAHAHHAHAHA
+
             }
         }
     }

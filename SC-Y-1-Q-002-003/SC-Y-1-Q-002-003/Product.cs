@@ -65,6 +65,7 @@ namespace SC_Y_1_Q_002_003
                 ▪ DeductStock(int quantity) check ✔️
          */
 
+
         public void deduct_stock(int quantity)
         {
             product_stock -= quantity;
