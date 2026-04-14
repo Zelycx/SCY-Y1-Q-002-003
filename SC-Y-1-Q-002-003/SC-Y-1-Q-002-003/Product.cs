@@ -57,7 +57,7 @@ namespace SC_Y_1_Q_002_003
         /*
             Examples: 
                 ▪ GetItemTotal(int quantity) 
-                // I think I'll put it in the main class or I'll create another class for shopping cart
+                // Another realization: Must be here
 
                 ▪ HasEnoughStock(int quantity) 
                 // I think putting it here is a proper choice.
@@ -75,6 +75,9 @@ namespace SC_Y_1_Q_002_003
             return product_stock >= quantity;
         }
 
-
+        public double getItemTotal(int quantity)
+        {
+            return product_price * quantity;
+        }
     }
 }
