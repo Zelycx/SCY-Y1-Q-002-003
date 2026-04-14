@@ -60,7 +60,7 @@ namespace SC_Y_1_Q_002_003
                 // I think I'll put it in the main class or I'll create another class for shopping cart
 
                 ▪ HasEnoughStock(int quantity) 
-                //putting it in the main class or program.cs
+                // I think putting it here is a proper choice.
 
                 ▪ DeductStock(int quantity) check ✔️
          */
@@ -68,6 +68,11 @@ namespace SC_Y_1_Q_002_003
         public void deduct_stock(int quantity)
         {
             product_stock -= quantity;
+        }
+
+        public bool hasEnoughStock(int quantity) 
+        {
+            return product_stock >= quantity;
         }
 
 
