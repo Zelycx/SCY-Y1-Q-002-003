@@ -51,7 +51,7 @@ namespace SC_Y_1_Q_002_003
 
         public string DisplayProduct()
         {
-            return $"| Product ID: {product_id} | Name: {product_name} | Price: {product_price} | Remaining Stocks: {product_stock} | ";
+            return $"| Product ID: {product_id} | Name: {product_name} | Price: {product_price:N2} | Remaining Stocks: {product_stock} | ";
         }
         //  At least one additional method aside from DisplayProduct()
         /*

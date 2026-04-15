@@ -129,6 +129,14 @@
                     continue;
                 }
 
+                // Blocking it already when the picked item does not have stock.
+                // Less work for user
+                if (products[MainIndex].PStock == 0)
+                {
+                    Console.WriteLine("This product is out of stock.");
+                    continue;
+                }
+
                 //o Enter quantity
                 Console.Write("Enter the Quantity of the Product: ");
                 string Userinput2 = Console.ReadLine() ?? "";
@@ -136,6 +144,8 @@
                 // Non-numeric input checker
                 int SelectedProductQuantity;
                 bool IsInt2 = int.TryParse(Userinput2, out SelectedProductQuantity);
+
+
 
                 if (IsInt2)
                 {
@@ -164,6 +174,7 @@
 
                 if (!enough) {
                     Console.WriteLine("Not enough stock available.");
+                    continue; // didn't see it earlier lol
                 }
 
 
@@ -175,7 +186,7 @@
                 */
 
                 // o Compute itemTotal = Price * Quantity ✔️
-                products[MainIndex].getItemTotal(SelectedProductQuantity);
+                double item_total = products[MainIndex].getItemTotal(SelectedProductQuantity);
 
                 // o Add item to cart 
 
@@ -184,7 +195,11 @@
                         o Display an appropriate message(example: “Cart is full.”)
                 */
 
-                if (CartIndex == cartItems.Length) Console.WriteLine("Cart is full.");
+                if (CartIndex == cartItems.Length)
+                {
+                    Console.WriteLine("Cart is full.");
+                    continue;
+                }
                 // Using the example to make it identical to the document.
 
 
@@ -197,11 +212,97 @@
 
                 // Using for loop for tracing.
                 for (int ci = 0; ci < cartItems.Length; ci++) {
-                    if (products[MainIndex].Pid.Equals(cartItems[ci])) {
+                    if (cartItems[ci] != null && products[MainIndex].Pid == cartItems[ci].Cid)
+                    {
                         cartItems[ci].Cquantity += SelectedProductQuantity;
+                        cartItems[ci].Cit = cartItems[ci].Cprice * cartItems[ci].Cquantity;
+                        products[MainIndex].deduct_stock(SelectedProductQuantity);
+                        Console.WriteLine("Item quantity updated in cart.");
+                        break;
+                    }
+                    else if (cartItems[ci] == null)
+                    {
+                        cartItems[ci] = new CartItem(
+                                products[MainIndex].Pid,
+                                products[MainIndex].Pname,
+                                products[MainIndex].Pprice, 
+                                SelectedProductQuantity,
+                                item_total
+                            );
+                        products[MainIndex].deduct_stock(SelectedProductQuantity);
+                        CartIndex++;
+                        Console.WriteLine("Item has been added to cart.");
+                        break;
+                    }
+                    else {
+                        continue;
                     }
                 }
+
+                // Allow the user to keep adding items until they choose N 
+                Console.WriteLine("Still want to keep adding items? (Y/N)");
+                Console.Write("Decision: ");
+                var looper = Console.ReadLine() ?? "";
+
+                if (looper.ToUpper() == "N")
+                {
+                    Console.Clear();
+                    break;
+                }
+                else
+                {
+                    Console.Clear();
+                    continue;
+                }
+
             }
+
+            // Display the receipt 
+            // Error Occured: Because earlier I'm fetching null items. ( minutes of thinking.. )
+            // Solution: Condition for item not being null.
+            Console.WriteLine("SIX SEVEN EVELYN");
+            Console.WriteLine("THANK YOU FOR BUYING!!\n");
+            foreach (CartItem item in cartItems)
+            {
+                if (item != null) // the solution.
+                {
+                    Console.WriteLine(item.show_receipt());
+                }
+            }
+
+            // Grand total process
+            double grandtotal = 0;
+            double discount = 0;
+
+            foreach(CartItem item in cartItems)
+            {
+                if (item != null)
+                {
+                    grandtotal += item.Cit;
+                }
+            }
+
+            // If the Grand Total is 5000 or more, apply a 10% discount
+            if (grandtotal >= 5000)
+            {
+                discount = grandtotal * 0.10;
+            }
+            double finalprice = grandtotal - discount;
+
+            // Displaying grand total, discount, and final total
+            Console.WriteLine($"\nTotal Price: {grandtotal:N2}");
+            Console.WriteLine($"Discount: {discount:N2}");
+            Console.WriteLine($"Final Price: {finalprice:N2} \n");
+            Console.WriteLine("Contact Number: 0967 990 9900 67\n");
+
+            Console.WriteLine("\nUPDATED STOCKS:");
+            foreach (Product p in products)
+            {
+                Console.WriteLine(p.DisplayProduct());
+            }
+
+
+            // NOW THE ONLY THING TO DO IS TO CLEAN AND GIVE THIS CODE A LIFE
         }
     }
 }
