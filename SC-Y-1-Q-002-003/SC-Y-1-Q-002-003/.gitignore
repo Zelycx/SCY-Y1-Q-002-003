@@ -1,6 +1,85 @@
-﻿.vs/
+﻿# Commiting is always been a problem for me so I did this to make the work easier.
+
+# ==============================
+# Build results
+# ==============================
 bin/
 obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Dd]ebugPublic/
+[Rr]eleases/
+x64/
+x86/
+
+# ==============================
+# Visual Studio files
+# ==============================
+.vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.env
+
+# ==============================
+# Logs and build outputs
+# ==============================
+*.log
+*.tlog
+*.tmp
+*.pdb
+*.idb	
 *.cache
+
+# ==============================
+# NuGet
+# ==============================
+*.nupkg
+packages/
+*.snupkg
+artifacts/
+*.nuget.props
+*.nuget.targets
+
+# ==============================
+# Test results
+# ==============================
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# ==============================
+# ReSharper / Rider (if used)
+# ==============================
+_ReSharper*/
+*.DotSettings.user
+
+# ==============================
+# Database / local files (optional but common)
+# ==============================
+*.mdf
+*.ldf
+*.sqlite
+*.db
+
+# ==============================
+# Publish / deployment
+# ==============================
+publish/
+*.publish.xml
+*.azurePubxml
+*.pubxml
+PublishScripts/
+
+# ==============================
+# Backup / temporary files
+# ==============================
+*~
+*.tmp
+*.bak
+*.swp
