@@ -1,32 +1,16 @@
-﻿namespace SC_Y_1_Q_002_003{
+﻿namespace SC_Y_1_Q_002_003
+{
     class Program
     {
-        static void Main(string[] args)
-        {
-            //1. Create an array of Product objects as your store menu
+        // ------------|INITIALIZATION OF OBJECTS|---------------
 
-            /*  
-                At first I want to create a list of products to make it easier and FLEXIBLE.  
+        // Globalizing them or making them static so they belong to the class and can be used by all methods
 
-                List<Product> products = new List<Product>(); 
-                .add() or {product1, product2..}
+        //1. Create an array of Product objects as your store menu
 
-                but considering "an array of Product objects" it's too risky to do that.
-
-                after checking it again,
-                even tho I really want to use list it's really needed to use array 
-                both product management and cart.
-                
-                    If using a fixed-size cart array: 
-                        o Prevent adding items if the cart is already full
-                
-                It might be optional but if it's in the document. just do it.
-                
-            */
-
-            // Create an array of Product objects as your store menu 
-            // created an array of Product
-            Product[] products = new Product[] {
+        // Create an array of Product objects as your store menu 
+        // created an array of Product
+        static Product[] products = new Product[] {
                 new Product(1, "Electric Fan", 1399, 50),
                 new Product(2, "Rexona", 89, 25), // Not Sponsored 🥲
                 new Product(3, "iPhone 17 Pro Max", 86990, 10), // Not Sponsored 🥲
@@ -42,35 +26,27 @@
                 new Product(12, "Closeup Toothpaste (Box of 6)", 489, 55), // Not Sponsored 🥲
                 // The "9", budol of marketing
             };
+        // "fixed-size cart array"
+        // Limiting the cart items to 20.
+        static CartItem[] cartItems = new CartItem[20];
+        static int CartIndex = 0; // tracking the index of the used cart
+        public static void ViewProduct()
+        {
+            //Display the menu using a loop
 
-            /* 
-                    "fixed-size cart array". 
-                
-                    Considering that I created an array of Product
-                    thinking that those ARE products shown in the MENU so
-                
-                    Menu contains Product
-
-                    I'll just create another array of items.
-                    (assuming that those items are the ones inside the cart)
-             */
-
-            // Limiting the cart items to 20.
-
-            CartItem[] cartItems = new CartItem[20];
-            int CartIndex = 0; // tracking the index of the used cart
-
-            Console.Clear();
-            // Main loop
+            Console.WriteLine("==========[ List of Products ]==========");
+            foreach (Product p in products)
+            {
+                Console.WriteLine(p.DisplayProduct());
+            }
+            // Since it's only view I'll just put this as it's functionalities
+            Console.Write("Press Enter to Continue..");
+            Console.ReadLine();
+        }
+        public static void AddToCart()
+        {
             while (true)
             {
-                //Display the menu using a loop
-                Console.WriteLine("==========[ MENU ]==========");
-                foreach (Product p in products)
-                {
-                    Console.WriteLine(p.DisplayProduct());
-                }
-
                 /*
                     Ask the user to: 
                         o Enter product number 
@@ -101,7 +77,7 @@
 
                     // Using for instead of foreach.
                     // Making it easier for me to track the selected product.
-                    for(int i = 0; i < products.Length; i++)
+                    for (int i = 0; i < products.Length; i++)
                     {
                         Product p = products[i];
                         if (SelectedProductID == p.Pid)
@@ -111,14 +87,15 @@
                         }
                     }
 
-                    if (!productisValid) {
+                    if (!productisValid)
+                    {
                         Console.WriteLine("Product ID does not exist.");
                         Console.Write("Press Enter to Continue..");
                         Console.ReadLine();
                         Console.Clear();
                         continue;
                     }
-                    
+
                 }
                 else
                 {
@@ -150,7 +127,8 @@
                 if (IsInt2)
                 {
                     // o Invalid quantity (Maybe checking for negativity and 0 quantity)
-                    if (SelectedProductQuantity <= 0) {
+                    if (SelectedProductQuantity <= 0)
+                    {
                         Console.WriteLine("Please enter a quantity higher than zero.");
                         continue;
                     }
@@ -172,7 +150,8 @@
                     enough = true;
                 }
 
-                if (!enough) {
+                if (!enough)
+                {
                     Console.WriteLine("Not enough stock available.");
                     continue; // didn't see it earlier lol
                 }
@@ -211,7 +190,8 @@
                 */
 
                 // Using for loop for tracing.
-                for (int ci = 0; ci < cartItems.Length; ci++) {
+                for (int ci = 0; ci < cartItems.Length; ci++)
+                {
                     if (cartItems[ci] != null && products[MainIndex].Pid == cartItems[ci].Cid)
                     {
                         cartItems[ci].Cquantity += SelectedProductQuantity;
@@ -225,7 +205,7 @@
                         cartItems[ci] = new CartItem(
                                 products[MainIndex].Pid,
                                 products[MainIndex].Pname,
-                                products[MainIndex].Pprice, 
+                                products[MainIndex].Pprice,
                                 SelectedProductQuantity,
                                 item_total
                             );
@@ -234,31 +214,47 @@
                         Console.WriteLine("Item has been added to cart.");
                         break;
                     }
-                    else {
+                    else
+                    {
                         continue;
                     }
                 }
 
                 // Allow the user to keep adding items until they choose N 
-                Console.WriteLine("Still want to keep adding items? (Y/N)");
-                Console.Write("Decision: ");
-                var looper = Console.ReadLine() ?? "";
+                // All Y/N prompts must re-prompt until valid input is entered. 
+                while (true)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Still want to keep adding items? (Y/N)");
+                    Console.Write("Decision: ");
+                    var looper = Console.ReadLine() ?? "";
 
-                if (looper.ToUpper() == "N")
-                {
-                    Console.Clear();
-                    break;
-                }
-                else
-                {
-                    Console.Clear();
-                    continue;
+                    if (looper.ToUpper() == "N")
+                    {
+                        return; // this will go out of the func itself 
+                    }
+                    else if (looper.ToUpper() == "Y")
+                    {
+                        break; // this will break the loop and go back to the func loop
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        // Invalid input. Please enter Y or N only. 
+                        Console.WriteLine("Invalid input. Please enter Y or N only. ");
+                        Console.Write("Press Enter to Continue..");
+                        Console.ReadLine();
+                        Console.Clear();
+                        continue;
+                    }
                 }
 
             }
-
+        }
+        public static void CheckOut()
+        {
             // Display the receipt 
-            // Error Occured: Because earlier I'm fetching null items. ( minutes of thinking.. )
+            // Error Occured: Because earlier I'm fet   ching null items. ( minutes of thinking.. )
             // Solution: Condition for item not being null.
             Console.WriteLine("SIX SEVEN EVELYN");
             Console.WriteLine("THANK YOU FOR BUYING!!\n");
@@ -274,7 +270,7 @@
             double grandtotal = 0;
             double discount = 0;
 
-            foreach(CartItem item in cartItems)
+            foreach (CartItem item in cartItems)
             {
                 if (item != null)
                 {
@@ -300,9 +296,102 @@
             {
                 Console.WriteLine(p.DisplayProduct());
             }
+        }
+        static void Main(string[] args)
+        {
+            // Main loop of the program
+            while (true)
+            {
+
+                /*
+                      * Create an enhanced version of your Shopping Cart System. Your program must now allow 
+                        users to manage their cart before checkout, validate payment, generate a receipt with receipt 
+                        number and date/time, show low-stock alerts, and keep an order history during the program 
+                        run. You must still use classes, objects, arrays, validation, and stock management.
+
+                        Features to be implemented: 
+
+                        * Cart management menu ✔️
+                        * Product search ✔️
+                        * Product categories ✔️
+                        * Low stock alert ✔️
+                        * Payment validation ✔️
+                        * Receipt system ✔️
+                        * Order history ✔️
+                        * Main menu system ✔️
+                        * Input validation ✔️
+                 */
+
+                /* 
+                    While thinking like a programmer who did a lot of POS with a GUI I notice a lot of errors in my mind
+                    Console based system will be hard to navigate by trying to put tons of functionalities in a single section
+                    of the syetem because it would lead to tons of complexities, therefore I would like to put tons of 
+                    considerations and understanding in this and create a place for the system to be managed.
+
+                    Considering that this is a Console Based System I would like to create a Main Menu
+                    containing all the essential functionalities and use functions to make it more cleaner.
+                 */
+
+                Console.Clear();
+                Console.WriteLine("MAIN MENU");
+                Console.WriteLine("1. View Product"); // Showing all the current products along with it's Stock Reorder Alert
+                Console.WriteLine("2. Search Product"); // This will be a function for the user if the user know what product to buy
+                Console.WriteLine("3. Filter by Category"); // Checking the products again but by Category  
+                Console.WriteLine("4. Add to Cart"); // Adding a product inside a cart
+                Console.WriteLine("5. Manage Cart"); // Where the Cart Management Menu is
+                Console.WriteLine("6. Checkout"); // Payment/Transactions and Receipt Proocessing
+                Console.WriteLine("7. View Order History"); // For viewing the completed transactions
+                Console.WriteLine("E. Exit"); // Exiting the program/system itself 
+
+                Console.Write("Select an option :");
+                var menuaction = Console.ReadLine() ?? "";
+
+                if (menuaction.ToUpper() == "E") return;
+
+                // still using tryparse :>
+                int option;
+                bool MenuActionisInt = int.TryParse(menuaction, out option);
 
 
-            // NOW THE ONLY THING TO DO IS TO CLEAN AND GIVE THIS CODE A LIFE
+                // Breaking each functionalities of the program into functions to make it more easier to manage
+
+                if (MenuActionisInt)
+                {
+                    switch (option)
+                    {
+                        case 1:
+                            Console.Clear();
+                            ViewProduct();
+                            break;
+                        case 2:
+                            // Making it a cart checker for now.
+                            foreach(CartItem item in cartItems)
+                            {
+                                if (item != null) Console.WriteLine(item.show_receipt());
+                            }
+                            Console.WriteLine("Please enter a numerical product ID.");
+                            Console.Write("Press Enter to Continue..");
+                            Console.ReadLine();
+                            break;
+                        case 3:
+                            break;
+                        case 4:
+                            Console.Clear();
+                            AddToCart();
+                            break;
+                        case 5:
+                            break;
+                        case 6:
+                            Console.Clear();
+                            CheckOut();
+                            break;
+                        case 7:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 }
