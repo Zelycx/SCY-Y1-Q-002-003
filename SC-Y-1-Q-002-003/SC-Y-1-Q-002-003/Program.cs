@@ -10,20 +10,21 @@
 
         // Create an array of Product objects as your store menu 
         // created an array of Product
+        // New: Added a category for each object.
         static Product[] products = new Product[] {
-                new Product(1, "Electric Fan", 1399, 50),
-                new Product(2, "Rexona", 89, 25), // Not Sponsored 🥲
-                new Product(3, "iPhone 17 Pro Max", 86990, 10), // Not Sponsored 🥲
-                new Product(4, "Teddy Bear", 1299, 35),
-                new Product(5, "Pair of Shoes", 1499, 60),
-                new Product(6, "Lucky Me Pancit Canton (Pack of 6)", 89, 60), // Not Sponsored 🥲
-                new Product(7, "Del Monte Pineapple Juice 1L (6-pack)", 549, 0), // Not Sponsored 🥲
+                new Product(1, "Electric Fan", 1399, 50, "Electronics"),
+                new Product(2, "Rexona", 89, 25, "Personal Care"), // Not Sponsored 🥲
+                new Product(3, "iPhone 17 Pro Max", 86990, 10, "Electronics"), // Not Sponsored 🥲
+                new Product(4, "3 White T-Shirts", 550, 35, "Clothing"), // Changing it to Tshirt for Clothing
+                new Product(5, "Pair of Shoes", 1499, 60, "Clothing"),
+                new Product(6, "Lucky Me Pancit Canton (Pack of 6)", 89, 60, "Food"), // Not Sponsored 🥲
                 // Making product 7 at 0 stock for checking.
-                new Product(8, "C2 Green Tea (Case of 24)", 489, 50), // Not Sponsored 🥲
-                new Product(9, "Champion Detergent Powder (Sack 3kg)", 289, 40), // Not Sponsored 🥲
-                new Product(10, "Johnson’s Baby Powder (Case 12pcs)", 999, 40), // Not Sponsored 🥲
-                new Product(11, "USB Flash Drive 32GB (Box of 10)", 1299, 25),
-                new Product(12, "Closeup Toothpaste (Box of 6)", 489, 55), // Not Sponsored 🥲
+                new Product(7, "Del Monte Pineapple Juice 1L (6-pack)", 549, 0, "Food"), // Not Sponsored 🥲
+                new Product(8, "C2 Green Tea (Case of 24)", 489, 50, "Food"), // Not Sponsored 🥲
+                new Product(9, "Champion Detergent Powder (Sack 3kg)", 289, 40, "Personal Care"), // Not Sponsored 🥲
+                new Product(10, "Johnson’s Baby Powder (Case 12pcs)", 999, 40, "Personal Care"), // Not Sponsored 🥲
+                new Product(11, "USB Flash Drive 32GB (Box of 10)", 1299, 25, "Electronics"),
+                new Product(12, "Closeup Toothpaste (Box of 6)", 489, 55, "Personal Care"), // Not Sponsored 🥲
                 // The "9", budol of marketing
             };
         // "fixed-size cart array"
@@ -33,7 +34,7 @@
         public static void ViewProduct()
         {
             //Display the menu using a loop
-
+            Console.Clear();
             Console.WriteLine("==========[ List of Products ]==========");
             foreach (Product p in products)
             {
@@ -45,6 +46,7 @@
         }
         public static void AddToCart()
         {
+            Console.Clear();
             while (true)
             {
                 /*
@@ -253,6 +255,7 @@
         }
         public static void CheckOut()
         {
+            Console.Clear();
             // Display the receipt 
             // Error Occured: Because earlier I'm fet   ching null items. ( minutes of thinking.. )
             // Solution: Condition for item not being null.
@@ -297,6 +300,164 @@
                 Console.WriteLine(p.DisplayProduct());
             }
         }
+
+        public static void ViewCart()
+        {
+            Console.Clear();
+            foreach (CartItem item in cartItems)
+            {
+                if (item != null) Console.WriteLine(item.show_receipt());
+            }
+            Console.Write("Press Enter to Continue..");
+            Console.ReadLine();
+        }
+        public static void RemoveCartItem()
+        {
+            Console.Clear();
+            while (true)
+            {
+                bool isRemoving = false;
+                Console.Write("Enter Product ID to remove : ");
+                // Base on my experience every removal or deletion requires confirmation
+                var itemtoremove = Console.ReadLine() ?? "";
+                while (true)
+                {
+                    Console.WriteLine("Important Note: Press 'E' to exit");
+                    Console.WriteLine($"Are you sure you want to remove item [{itemtoremove}] ? (Y/N)");
+                    Console.Write("Response : ");
+                    string response = Console.ReadLine() ?? "";
+                    if (response.ToUpper() == "Y") {
+                        isRemoving = true;
+                        break;
+                    }
+                    else if (response.ToUpper() == "N") {
+                        Console.WriteLine("Removing the item cancelled.");
+                        Console.Write("Press Enter to Continue..");
+                        Console.ReadLine();
+                        break;
+                    }else if(response.ToUpper() == "E") {
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input. Please enter Y or N only. ");
+                        Console.Write("Press Enter to Continue..");
+                        Console.ReadLine();
+                    }
+                }
+
+                if (!isRemoving)
+                {
+                    continue;
+                }
+
+                int ItemToRemove;
+                bool ItemIsInt = int.TryParse(itemtoremove, out ItemToRemove);
+
+                /* 
+                    
+                    Got a problem, I tried to just null it but then realize that
+                    it will cause an issue for tons of functionalities such as 
+                    checkout and add to cart.
+
+                    then I tried to put the last object inside that hole, it got it right
+                    but then I also saw that removing an item 
+
+                    this took me so much just making all of the items to move
+                    from the beginning because there will be a hole inside the cart 
+
+                */
+                for (int i = 0; i < CartIndex; i++)
+                {
+                    if (cartItems[i] != null && cartItems[i].Cid == ItemToRemove)
+                    {
+                        for (int j = i; j < CartIndex - 1; j++)
+                        {
+                            cartItems[j] = cartItems[j + 1];
+                        }
+
+                        cartItems[CartIndex - 1] = null;
+                        CartIndex--;
+
+                        Console.WriteLine("Item removed successfully.");
+                        break;
+                    }
+                }
+
+            }
+
+
+        }
+        public static void ManageCart()
+        {
+            Console.Clear();
+            /*
+                1. Cart Management Menu 
+                Add a cart menu where the user can: 
+                • View cart  
+                • Remove an item from cart  
+                • Update item quantity  
+                • Clear cart  
+                • Checkout  
+
+                This is a good (next step) because many students already have add-to-cart logic, but not full cart 
+                management. 
+             
+             */
+            while (true)
+            {
+                Console.WriteLine("Cart Management Menu");
+                Console.WriteLine("1. View Cart");
+                Console.WriteLine("2. Remove an item from the cart");
+                Console.WriteLine("3. Update item quantity");
+                Console.WriteLine("4. Clear Cart");
+                Console.WriteLine("5. Check-out");
+                Console.WriteLine("E. Exit");
+
+                Console.Write("\nPlease proceed by selecting an option : ");
+                // I don't really know why I'm making it var instead of just string. still the same lol.
+                var CartManagementMenuOption = Console.ReadLine() ?? "";
+
+                if (CartManagementMenuOption.ToUpper() == "E") return;
+
+                int CartOption;
+                bool CartManagementMenuOptionisInt = int.TryParse(CartManagementMenuOption, out CartOption);
+
+                if (CartManagementMenuOptionisInt)
+                {
+                    switch (CartOption)
+                    {
+                        case 1:
+                            ViewCart();
+                            break;
+                        case 2:
+                            RemoveCartItem();
+                            break;
+                        case 3:
+                            break;
+                        case 4:
+                            break;
+                        case 5:
+                            CheckOut();
+                            break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine("Please select an existing option.");
+                            Console.Write("Press Enter to Continue..");
+                            Console.ReadLine();
+                            continue;
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Please select an existing option.");
+                    Console.Write("Press Enter to Continue..");
+                    Console.ReadLine();
+                    continue;
+                }
+            }
+        }
         static void Main(string[] args)
         {
             // Main loop of the program
@@ -339,11 +500,10 @@
                 Console.WriteLine("3. Filter by Category"); // Checking the products again but by Category  
                 Console.WriteLine("4. Add to Cart"); // Adding a product inside a cart
                 Console.WriteLine("5. Manage Cart"); // Where the Cart Management Menu is
-                Console.WriteLine("6. Checkout"); // Payment/Transactions and Receipt Proocessing
-                Console.WriteLine("7. View Order History"); // For viewing the completed transactions
+                Console.WriteLine("6. View Order History"); // For viewing the completed transactions
                 Console.WriteLine("E. Exit"); // Exiting the program/system itself 
 
-                Console.Write("Select an option :");
+                Console.Write("\nSelect an option : ");
                 var menuaction = Console.ReadLine() ?? "";
 
                 if (menuaction.ToUpper() == "E") return;
@@ -364,14 +524,6 @@
                             ViewProduct();
                             break;
                         case 2:
-                            // Making it a cart checker for now.
-                            foreach(CartItem item in cartItems)
-                            {
-                                if (item != null) Console.WriteLine(item.show_receipt());
-                            }
-                            Console.WriteLine("Please enter a numerical product ID.");
-                            Console.Write("Press Enter to Continue..");
-                            Console.ReadLine();
                             break;
                         case 3:
                             break;
@@ -380,16 +532,26 @@
                             AddToCart();
                             break;
                         case 5:
+                            Console.Clear();
+                            ManageCart();
                             break;
                         case 6:
-                            Console.Clear();
-                            CheckOut();
-                            break;
-                        case 7:
                             break;
                         default:
-                            break;
+                            Console.Clear();
+                            Console.WriteLine("Please select an existing option.");
+                            Console.Write("Press Enter to Continue..");
+                            Console.ReadLine();
+                            continue;
                     }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Please select an existing option.");
+                    Console.Write("Press Enter to Continue..");
+                    Console.ReadLine();
+                    continue;
                 }
             }
         }
