@@ -1,4 +1,6 @@
-﻿namespace SC_Y_1_Q_002_003
+﻿using System.Xml.Linq;
+
+namespace SC_Y_1_Q_002_003
 {
     class Program
     {
@@ -31,6 +33,7 @@
         // Limiting the cart items to 20.
         static CartItem[] cartItems = new CartItem[20];
         static int CartIndex = 0; // tracking the index of the used cart
+        static History[] DoneTransactions = new History[1000]; // 1000 because of the 0001
         public static void ViewProduct()
         {
             //Display the menu using a loop
@@ -294,11 +297,88 @@
             Console.WriteLine($"Final Price: {finalprice:N2} \n");
             Console.WriteLine("Contact Number: 0967 990 9900 67\n");
 
-            Console.WriteLine("\nUPDATED STOCKS:");
-            foreach (Product p in products)
+            // Checkout Payment Validation
+
+            Console.Write("Enter Payment: ");
+
+            // • Payment must be numeric. 
+            // • Payment must be greater than or equal to final total. 
+            // • If payment is insufficient, ask again. 
+
+            // still tryparse
+            // all three conditions to validate already to lessen the lines
+            double payment;
+            while (!double.TryParse(Console.ReadLine(), out payment) || payment < finalprice)
             {
-                Console.WriteLine(p.DisplayProduct());
+                // • If payment is insufficient, ASK AGAIN. 
+                Console.WriteLine("Invalid or insufficient payment. Try again.");
+                // No one is breaking it bro
+                Console.Write("Enter Payment: ");
             }
+
+            double change = payment - finalprice;
+
+            Console.WriteLine($"Payment: {payment:N2}");
+            Console.WriteLine($"Change: {change:N2}");
+
+            // Receipt Number and Date
+            /*
+                 Each receipt should show:
+                    • Receipt number 
+                    • Checkout date and time 
+                    • Purchased items 
+                    • Grand total 
+                    • Discount 
+                    • Final total 
+                    • Payment 
+             */
+
+            // incrementation of numbers making it an ID
+            int receiptNumber = 1;
+
+            for (int i = 0; i < DoneTransactions.Length; i++)
+            {
+                if (DoneTransactions[i] != null)
+                {
+                    receiptNumber++;
+                }
+            }
+
+            History newHistory = new History(
+                receiptNumber, // • Receipt number
+                DateTime.Now,  // • Checkout date and time 
+                grandtotal,    // • Grand total 
+                discount,      // • Discount 
+                finalprice,    // • Final total
+                payment,       // • Payment
+                change         // • Change
+            );
+
+            // Store the transaction to history
+            for (int i = 0; i < DoneTransactions.Length; i++)
+            {
+                if (DoneTransactions[i] == null)
+                {
+                    DoneTransactions[i] = newHistory;
+                    break;
+                }
+            }
+
+            // receipt from the history (with rnumber and rdate)
+            Console.WriteLine("\n---------| Receipt |---------");
+            Console.WriteLine(newHistory.DisplayFullReceipt());
+
+            // clearing the cart after checking out
+            for (int i = 0; i < cartItems.Length; i++)
+            {
+                cartItems[i] = null;
+            }
+            CartIndex = 0;
+
+            // I deleted the stock checking part as it can be seen in the view product
+
+            Console.Write("Press Enter to Continue..");
+            Console.ReadLine();
         }
 
         public static void ViewCart()
@@ -317,27 +397,33 @@
             while (true)
             {
                 bool isRemoving = false;
+                // adding an exit way here
+                Console.WriteLine("Important Note: Press 'E' to exit");
                 Console.Write("Enter Product ID to remove : ");
                 // Base on my experience every removal or deletion requires confirmation
                 var itemtoremove = Console.ReadLine() ?? "";
+                if (itemtoremove.ToUpper() == "E") return;
+
                 while (true)
                 {
+                    Console.Clear();
                     Console.WriteLine("Important Note: Press 'E' to exit");
                     Console.WriteLine($"Are you sure you want to remove item [{itemtoremove}] ? (Y/N)");
                     Console.Write("Response : ");
                     string response = Console.ReadLine() ?? "";
-                    if (response.ToUpper() == "Y") {
+                    if (response.ToUpper() == "Y")
+                    {
                         isRemoving = true;
                         break;
                     }
-                    else if (response.ToUpper() == "N") {
+                    else if (response.ToUpper() == "N")
+                    {
                         Console.WriteLine("Removing the item cancelled.");
                         Console.Write("Press Enter to Continue..");
                         Console.ReadLine();
                         break;
-                    }else if(response.ToUpper() == "E") {
-                        return;
                     }
+                    else if (response.ToUpper() == "E") return;
                     else
                     {
                         Console.WriteLine("Invalid input. Please enter Y or N only. ");
@@ -355,7 +441,6 @@
                 bool ItemIsInt = int.TryParse(itemtoremove, out ItemToRemove);
 
                 /* 
-                    
                     Got a problem, I tried to just null it but then realize that
                     it will cause an issue for tons of functionalities such as 
                     checkout and add to cart.
@@ -365,12 +450,22 @@
 
                     this took me so much just making all of the items to move
                     from the beginning because there will be a hole inside the cart 
-
                 */
+
                 for (int i = 0; i < CartIndex; i++)
                 {
                     if (cartItems[i] != null && cartItems[i].Cid == ItemToRemove)
                     {
+                        // FIX: return stock BEFORE shifting
+                        for (int k = 0; k < products.Length; k++)
+                        {
+                            if (products[k].Pid == cartItems[i].Cid)
+                            {
+                                products[k].PStock += cartItems[i].Cquantity;
+                                break;
+                            }
+                        }
+
                         for (int j = i; j < CartIndex - 1; j++)
                         {
                             cartItems[j] = cartItems[j + 1];
@@ -383,14 +478,178 @@
                         break;
                     }
                 }
+            }
+        }
 
+        public static void ClearCart()
+        {
+            // I don't really know what to say to this. It's pretty easy.
+            // 2 steps
+            while (true)
+            {
+                // 1. Confirmation
+                Console.WriteLine($"Are you sure you want to clear the cart? (Y/N)");
+                Console.Write("Response : ");
+                string response = Console.ReadLine() ?? "";
+                if (response.ToUpper() == "Y")
+                {
+                    break;
+                }
+                else if (response.ToUpper() == "N")
+                {
+                    Console.WriteLine("Clearing the cart cancelled.");
+                    Console.Write("Press Enter to Continue..");
+                    Console.ReadLine();
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter Y or N only. ");
+                    Console.Write("Press Enter to Continue..");
+                    Console.ReadLine();
+                    continue;
+                }
             }
 
+            // OHHH Such an oblivious and huge headed person, thought it was just 2 steps
 
+            // Put back the stocks to products
+            for (int i = 0; i < cartItems.Length; i++)
+            {
+                if (cartItems[i] != null)
+                {
+                    for (int j = 0; j < products.Length; j++)
+                    {
+                        if (products[j].Pid == cartItems[i].Cid)
+                        {
+                            products[j].PStock += cartItems[i].Cquantity;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 2. Nullification
+            for (int i = 0; i < cartItems.Length; i++)
+            {
+                cartItems[i] = null;
+            }
+
+            CartIndex = 0;
         }
+        public static void UpdateCartQuantity()
+        {
+            while (true)
+            {
+                // for this there will be another 2 steps
+                Console.Clear();
+                int itemtoupdate = -1; // the index
+                int productstock = -1;
+
+                Console.WriteLine("UPDATE ITEM QUANTITY");
+                Console.Write("Please specify the Item ID to update: ");
+                var temp1 = Console.ReadLine() ?? "";
+
+                int Account;
+                bool temp1IsInt = int.TryParse(temp1, out Account);
+
+                if (temp1IsInt)
+                {
+                    for (int i = 0; i < cartItems.Length; i++)
+                    {
+                        if (cartItems[i] != null && cartItems[i].Cid == Account)
+                        {
+                            itemtoupdate = i;
+                            break;
+                        }
+                    }
+
+                    if (itemtoupdate == -1)
+                    {
+                        Console.WriteLine("Item does not exist inside the cart");
+                        Console.Write("Press Enter to Continue..");
+                        Console.ReadLine();
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Please enter an item ID");
+                    Console.Write("Press Enter to Continue..");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.Write("Enter the new quantity: ");
+                var temp2 = Console.ReadLine() ?? "";
+
+                int QuantityToChange;
+                bool tempIsInt = int.TryParse(temp2, out QuantityToChange);
+
+                if (tempIsInt)
+                {
+                    if (QuantityToChange <= 0)
+                    {
+                        Console.WriteLine("Quantity must be greater than zero.");
+                        Console.Write("Press Enter to Continue..");
+                        Console.ReadLine();
+                        continue;
+                    }
+
+                    // 1. get back the quantity to the product
+                    for (int i = 0; i < products.Length; i++)
+                    {
+                        if (products[i].Pid == cartItems[itemtoupdate].Cid)
+                        {
+                            productstock = i;
+
+                            // return old quantity
+                            products[i].PStock += cartItems[itemtoupdate].Cquantity;
+
+                            // check if enough stock for new quantity
+                            if (products[i].PStock >= QuantityToChange)
+                            {
+                                products[i].PStock -= QuantityToChange;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Insufficient Stock");
+                                Console.Write("Press Enter to Continue..");
+                                Console.ReadLine();
+
+                                // restore original deduction
+                                products[i].PStock -= cartItems[itemtoupdate].Cquantity;
+
+                                productstock = -1;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    // 2. update the quantity
+                    if (productstock != -1)
+                    {
+                        cartItems[itemtoupdate].Cquantity = QuantityToChange;
+                        cartItems[itemtoupdate].Cit = cartItems[itemtoupdate].Cprice * QuantityToChange;
+
+                        Console.WriteLine("Item quantity updated successfully.");
+                        Console.Write("Press Enter to Continue..");
+                        Console.ReadLine();
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Please enter a numerical quantity.");
+                    Console.Write("Press Enter to Continue..");
+                    Console.ReadLine();
+                }
+            }
+        }
+
         public static void ManageCart()
         {
-            Console.Clear();
             /*
                 1. Cart Management Menu 
                 Add a cart menu where the user can: 
@@ -406,6 +665,8 @@
              */
             while (true)
             {
+                // put it here cuz it's not working in the function loop
+                Console.Clear();
                 Console.WriteLine("Cart Management Menu");
                 Console.WriteLine("1. View Cart");
                 Console.WriteLine("2. Remove an item from the cart");
@@ -434,8 +695,10 @@
                             RemoveCartItem();
                             break;
                         case 3:
+                            UpdateCartQuantity();
                             break;
                         case 4:
+                            ClearCart();
                             break;
                         case 5:
                             CheckOut();

@@ -32,6 +32,8 @@ namespace SC_Y_1_Q_002_003
         // For Receipt
 
         // Display the receipt and Grand Total 
+        // this will act now as just showing what's inside the cart because
+        // back then there are no cart management and after putting inside the cart it's already check out while showing what's inside the cart
         public string show_receipt()
         {
             return $"| Product: {Cname} | Price:  {Cprice:N2} | Quantity: {Cquantity} | Total Price: {item_total:N2} |";
