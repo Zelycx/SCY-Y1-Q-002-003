@@ -721,6 +721,117 @@ namespace SC_Y_1_Q_002_003
                 }
             }
         }
+
+        public static void FilterProductsByCategory()
+        {
+
+            /*
+                Product Categories
+                    Add a Category field to the Product class. ✔️
+                    Example:
+                    public string Category;
+
+                    Then allow users to filter products by category.
+                    Example:
+                    1. Food
+                    2. Electronics
+                    3. Clothing
+             */
+
+            Console.Clear();
+            while (true)
+            {
+                // Part 1: Put all the unique categories to the array of categories
+                string[] categories = new string[products.Length];
+                int categoryCount = 0;
+
+                for (int i = 0; i < products.Length; i++)
+                {
+                    if (products[i] == null) continue;
+                     
+                    // meow for CATegory 
+                    string meow = products[i].PCategory;
+
+                    bool exists = false;
+                    for (int j = 0; j < categoryCount; j++)
+                    {
+                        if (categories[j] == meow)
+                        {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (!exists)
+                    {
+                        categories[categoryCount] = meow;
+                        categoryCount++;
+                    }
+                }
+
+                // Part 2: Menu asking for what category to see
+                Console.WriteLine("---------| FILTER PRODUCTS BY CATEGORY |---------\n");
+                for (int i = 0; i < categoryCount; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {categories[i]}");
+                }
+                Console.WriteLine("E. Exit");
+
+                Console.Write("\nSelect category: ");
+                string input = Console.ReadLine() ?? "";
+
+                if (input.ToUpper() == "E")
+                {
+                    return;
+                }
+
+                // normalizing tryparse
+                int index;
+                bool isInt = int.TryParse(input, out index);
+
+                string selectedCategory = "";
+
+                if (isInt && index > 0 && index <= categoryCount)
+                {
+                    selectedCategory = categories[index - 1];
+                }
+                else
+                {
+                    Console.WriteLine("Invalid selection.");
+                    Console.Write("Press Enter to continue...");
+                    Console.ReadLine();
+                    Console.Clear();
+                    continue;
+                }
+
+                // Part 3: Filter
+                Console.Clear();
+                Console.WriteLine($"---------| {selectedCategory} |---------");
+
+                bool found = false;
+
+                for (int i = 0; i < products.Length; i++)
+                {
+                    if (products[i] != null && products[i].PCategory.Equals(selectedCategory, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine(products[i].DisplayProduct());
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                {
+                    Console.WriteLine("No products found.");
+                }
+
+                Console.Write("\nPress Enter to continue...");
+                Console.ReadLine();
+                Console.Clear();
+
+                // antok na 'ko damn it.. bye, goodnight
+            }
+        }
+
         static void Main(string[] args)
         {
             // Main loop of the program
@@ -789,6 +900,7 @@ namespace SC_Y_1_Q_002_003
                         case 2:
                             break;
                         case 3:
+                            FilterProductsByCategory();
                             break;
                         case 4:
                             Console.Clear();
