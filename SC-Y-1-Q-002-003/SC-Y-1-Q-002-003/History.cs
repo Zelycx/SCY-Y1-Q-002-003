@@ -67,7 +67,7 @@ namespace SC_Y_1_Q_002_003
 
         public string DisplayHistory()
         {
-            return $"Receipt #{receipt_number} | Date: {history_date} | Final: ₱{history_finaltotal:N2}";
+            return $"Receipt #{receipt_number} | Date: {history_date} | Final: Php {history_finaltotal:N2}";
         }
 
         // this will be the final receipt of the product when it's already checked out. 

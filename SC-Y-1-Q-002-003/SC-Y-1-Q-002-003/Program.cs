@@ -397,6 +397,8 @@ namespace SC_Y_1_Q_002_003
 
             Console.Write("Press Enter to Continue..");
             Console.ReadLine();
+
+            PostCheckoutMenu();
         }
 
         public static void ViewCart()
