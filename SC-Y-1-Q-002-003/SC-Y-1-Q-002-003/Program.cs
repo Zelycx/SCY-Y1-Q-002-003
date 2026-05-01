@@ -36,15 +36,33 @@ namespace SC_Y_1_Q_002_003
         static History[] DoneTransactions = new History[1000]; // 1000 because of the 0001
         public static void ViewProduct()
         {
-            //Display the menu using a loop
+            // Display the menu using a loop
             Console.Clear();
-            Console.WriteLine("==========[ List of Products ]==========");
+            Console.WriteLine("----------| List of Products |---------");
+
             foreach (Product p in products)
             {
-                Console.WriteLine(p.DisplayProduct());
+                if (p != null)
+                {
+                    Console.WriteLine(p.DisplayProduct());
+                }
             }
-            // Since it's only view I'll just put this as it's functionalities
-            Console.Write("Press Enter to Continue..");
+
+            /*
+                    4. Stock Reorder Alert
+                    After checkout, display products with low stock.
+
+                    Example:
+                    LOW STOCK ALERT:
+                    Mouse has only 2 stocks left.
+                    Keyboard has only 1 stock left.
+                    Set a reorder level, such as RemainingStock <= 5.
+             
+             */
+            ShowLowStockAlert();
+
+            // Since it's only view I'll just put this as its functionality
+            Console.Write("\nPress Enter to Continue..");
             Console.ReadLine();
         }
         public static void AddToCart()
@@ -832,6 +850,288 @@ namespace SC_Y_1_Q_002_003
             }
         }
 
+        /*
+            2. Product Search
+            Allow users to search products by name.
+
+            Example:
+            Enter product name to search: mouse 
+
+            Result:
+            2. Wireless Mouse - PHP 500 - Stock: 10 // adding if it contains
+         
+         */
+        public static void ProductSearch()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("---------| SEARCH PRODUCT |---------");
+                Console.WriteLine("Important Note: Enter 'E' to exit.");
+                Console.Write("Enter product name to search : ");
+
+                string keyword = Console.ReadLine() ?? "";
+
+                if (keyword.ToUpper() == "E")
+                {
+                    return;
+                }
+
+                // the search has 3 levels:
+                // 1. Exact match - Will be the most priority
+                // 2. Starting - Back burner
+                // 3. Contains - Last option
+
+                // for "contains" results, the position of the keyword is also checked
+                // earlier position = better match
+                // example: "Mouse Pad" is better than "Gaming Mouse"
+
+                Product[] exact = new Product[products.Length];
+                Product[] starting = new Product[products.Length];
+
+                Product[] containing = new Product[products.Length];
+                int[] containIndex = new int[products.Length];
+                // stores the position where the keyword was found in the product name
+                // lower number = keyword appears earlier = better match
+                // this is used for ranking the best and worst possible "contains" results
+
+                int exactCount = 0, startsCount = 0, containsCount = 0;
+
+                // step 1: sort products into groups
+                for (int i = 0; i < products.Length; i++)
+                {
+                    if (products[i] == null) continue;
+
+                    string name = products[i].Pname;
+
+                    if (name.Equals(keyword, StringComparison.OrdinalIgnoreCase))
+                    {
+                        exact[exactCount++] = products[i];
+                    }
+                    else if (name.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
+                    {
+                        starting[startsCount++] = products[i];
+                    }
+                    else
+                    {
+                        int pos = name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase);
+
+                        if (pos >= 0)
+                        {
+                            containing[containsCount] = products[i];
+                            containIndex[containsCount] = pos;
+                            containsCount++;
+                        }
+                    }
+                }
+
+                Console.WriteLine("\nSEARCH RESULTS :");
+                bool found = false;
+
+                // Scenario 1: if exact or starts match exists
+                // the result is considered "best matches"
+                if (exactCount > 0 || startsCount > 0)
+                {
+                    Console.WriteLine("\nBest Results:");
+
+                    for (int i = 0; i < exactCount; i++)
+                    {
+                        Console.WriteLine(exact[i].DisplayProduct());
+                        found = true;
+                    }
+
+                    for (int i = 0; i < startsCount; i++)
+                    {
+                        Console.WriteLine(starting[i].DisplayProduct());
+                        found = true;
+                    }
+
+                    // other results are still shown below
+                    if (containsCount > 0)
+                    {
+                        Console.WriteLine("\nOther Results:");
+                    }
+
+                    for (int i = 0; i < containsCount; i++)
+                    {
+                        Console.WriteLine(containing[i].DisplayProduct());
+                        found = true;
+                    }
+                }
+                else
+                {
+                    // CASE 2: no exact or starts match found
+                    // so the system relies only on "contains"
+
+                    // the results are ranked based on keyword position
+                    // earlier position = better match
+
+                    // simple bubble sort is used here
+                    // not the fastest, but it keeps the logic easy to follow for me
+
+                    for (int i = 0; i < containsCount - 1; i++)
+                    {
+                        for (int j = i + 1; j < containsCount; j++)
+                        {
+                            if (containIndex[i] > containIndex[j])
+                            {
+                                // swap index values
+                                int tempIndex = containIndex[i];
+                                containIndex[i] = containIndex[j];
+                                containIndex[j] = tempIndex;
+
+                                // swap products to match the ranking
+                                Product tempProduct = containing[i];
+                                containing[i] = containing[j];
+                                containing[j] = tempProduct;
+                            }
+                        }
+                    }
+
+                    // I just.. hate DSA ^^
+
+                    Console.WriteLine("\n--- Best Matches ---");
+
+                    for (int i = 0; i < containsCount; i++)
+                    {
+                        Console.WriteLine(containing[i].DisplayProduct());
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                {
+                    Console.WriteLine("No matching products found.");
+                }
+
+                Console.Write("\nPress Enter to continue...");
+                Console.ReadLine();
+            }
+        }
+
+        /*
+            Order History
+            Store completed transactions in an array.
+
+            After checkout, allow the user to view order history.
+
+            Example:
+            ORDER HISTORY
+            Receipt #0001 - Final Total: PHP 5200
+            Receipt #0002 - Final Total: PHP 1800
+
+         */
+
+        public static void ViewOrderHistory()
+        {
+            // just showing the history
+            Console.Clear();
+            Console.WriteLine("==========| ORDER HISTORY |==========\n");
+
+            bool hasHistory = false;
+
+            for (int i = 0; i < DoneTransactions.Length; i++)
+            {
+                if (DoneTransactions[i] != null)
+                {
+                    Console.WriteLine(DoneTransactions[i].DisplayFullReceipt());
+                    Console.WriteLine("------------------------------------");
+                    hasHistory = true;
+                }
+            }
+
+            if (!hasHistory)
+            {
+                Console.WriteLine("No transactions yet.");
+            }
+
+            Console.WriteLine("\nPress Enter to go back...");
+            Console.ReadLine();
+        }
+
+        // Adding a different low stock alert function because it's been used a lot
+        public static void ShowLowStockAlert()
+        {
+            Console.WriteLine("\n---------- ⚠️ LOW STOCK ALERT ----------");
+
+            bool hasLowStock = false;
+
+            for (int i = 0; i < products.Length; i++)
+            {
+                if (products[i] != null && products[i].PStock <= 5)
+                {
+                    Console.WriteLine($"⚠️ {products[i].Pname} has only {products[i].PStock} stock left.");
+                    hasLowStock = true;
+                }
+            }
+
+            if (!hasLowStock)
+            {
+                Console.WriteLine("No low stock products.");
+            }
+        }
+
+        // There are tons of thing that will happen after check out so to adjust into that requirements
+        // I'll create a post or after checkout function
+
+        public static void PostCheckoutMenu()
+        {
+            while (true)
+            {
+                Console.Clear();
+                ShowLowStockAlert();
+                Console.WriteLine("\nWhat to do next? ");
+                Console.WriteLine("1. Back to Main Menu");
+                Console.WriteLine("2. View Order History"); // Showing the order history
+                Console.WriteLine("3. View Products"); // Current and Low Stock Warnings can be seen here
+                // After considerations I won't remove this.
+                Console.WriteLine("E. Exit Program");
+
+                Console.Write("\nChoose option: ");
+                string input = Console.ReadLine() ?? "";
+
+                if (input.ToUpper() == "E")
+                {
+                    Environment.Exit(0);
+                }
+
+                int option;
+                bool isInt = int.TryParse(input, out option);
+
+                if (!isInt)
+                {
+                    Console.WriteLine("Invalid input.");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                switch (option)
+                {
+                    case 1:
+                        return; // go back to main menu
+
+                    case 2:
+                        // After checkout, allow the user to view order history.
+                        ViewOrderHistory();
+                        Console.WriteLine("History feature not shown here yet.");
+                        Console.ReadLine();
+                        break;
+
+                    case 3:
+                        // After checkout, display products with low stock.
+                        // but it says 
+                        ViewProduct();
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        Console.ReadLine();
+                        break;
+                }
+            }
+        }
+
+
         static void Main(string[] args)
         {
             // Main loop of the program
@@ -898,19 +1198,19 @@ namespace SC_Y_1_Q_002_003
                             ViewProduct();
                             break;
                         case 2:
+                            ProductSearch();
                             break;
                         case 3:
                             FilterProductsByCategory();
                             break;
                         case 4:
-                            Console.Clear();
                             AddToCart();
                             break;
                         case 5:
-                            Console.Clear();
                             ManageCart();
                             break;
                         case 6:
+                            ViewOrderHistory();
                             break;
                         default:
                             Console.Clear();
